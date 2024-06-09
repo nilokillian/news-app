@@ -4,15 +4,20 @@ import styles from "./styles.module.css";
 import { getNews } from "../../api/apiNews";
 import { INews } from "../../types";
 import NewsList from "../../components/news-list/NewsList";
+import Skeleton from "../../components/skeleton/Skeleton";
 
 const MainPage = () => {
   const [news, setNews] = useState<INews[]>([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const response = await getNews();
         setNews(response.news);
+        setLoading(false);
       } catch (error) {
+        setLoading(false);
         console.error(error);
       }
     };
@@ -21,8 +26,12 @@ const MainPage = () => {
 
   return (
     <main className={styles.main}>
-      <Banner item={news.length > 0 ? news[1] : undefined} />
-      <NewsList news={news} />
+      {loading ? (
+        <Skeleton count={1} type="banner" />
+      ) : (
+        <Banner item={news.length > 0 ? news[1] : undefined} />
+      )}
+      {loading ? <Skeleton count={10} type="item" /> : <NewsList news={news} />}
     </main>
   );
 };
